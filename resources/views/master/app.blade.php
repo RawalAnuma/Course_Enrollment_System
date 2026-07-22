@@ -25,12 +25,12 @@
                     <li class="nav-item dropdown">
 
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle"></i> Admin
+                            <i class="bi bi-person-circle"></i> {{ Auth::user()->name }}
                         </a>
 
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="{{route('auth.profile')}}">
                                     <i class="bi bi-person"></i> Profile
                                 </a>
                             </li>
@@ -38,7 +38,7 @@
                             <li><hr class="dropdown-divider"></li>
 
                             <li>
-                                <a class="dropdown-item text-danger" href="#">
+                                <a class="dropdown-item text-danger" href=" {{route('auth.logout')}}">
                                     <i class="bi bi-box-arrow-right"></i> Logout
                                 </a>
                             </li>

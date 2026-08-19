@@ -28,6 +28,7 @@ class UserSeeder extends Seeder
                 'contact_number' => '9800000002',
                 'role' => 'student',
             ],
+
         ];
 
         foreach ($users as $user) {

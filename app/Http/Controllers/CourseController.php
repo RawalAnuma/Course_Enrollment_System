@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\User;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Models\Course;
 
 use Illuminate\Http\Request;
@@ -11,10 +11,12 @@ use Exception;
 class CourseController extends Controller
 {
     private CourseRepositoryInterface $courseRepository;
+    private UserRepositoryInterface $userRepository;
 
-    public function __construct(CourseRepositoryInterface $courseRepository)
+    public function __construct(CourseRepositoryInterface $courseRepository, UserRepositoryInterface $userRepository)
     {
         $this->courseRepository = $courseRepository;
+        $this->userRepository = $userRepository;
     }
 
     public function index()
@@ -24,7 +26,7 @@ class CourseController extends Controller
     }
 
     public function create(){
-        $leaders = User::where('role', 'teacher')->get();
+        $leaders = $this->userRepository->getTeachers();
         return view('courses.create', compact('leaders'));
     }
 
@@ -53,7 +55,7 @@ class CourseController extends Controller
 
 
     public function edit(Course $course){
-        $leaders = User::where('role', 'teacher')->get();
+        $leaders = $this->userRepository->getTeachers();
         return view('courses.edit', compact('course', 'leaders'));
     }
 

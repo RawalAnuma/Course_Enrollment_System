@@ -5,13 +5,21 @@ use App\Models\User;
 use App\Models\Course;
 
 use Illuminate\Http\Request;
+use App\Repositories\Contracts\CourseRepositoryInterface;
 use Exception;
 
 class CourseController extends Controller
 {
+    private CourseRepositoryInterface $courseRepository;
+
+    public function __construct(CourseRepositoryInterface $courseRepository)
+    {
+        $this->courseRepository = $courseRepository;
+    }
+
     public function index()
     {
-        $courses = Course::all(['id', 'course_name', 'course_id', 'credit_hours', 'leader_id',  'description', 'status']);
+        $courses = $this->courseRepository->getAll();
         return view('courses.index', compact('courses'));
     }
 
@@ -32,7 +40,7 @@ class CourseController extends Controller
         'description' => 'nullable|string',
         ]);
 
-        Course::create($validatedData);
+        $this->courseRepository->create($validatedData);
 
         return redirect()->route('courses.index')->with('success', 'Course created successfully!');
     }
@@ -61,7 +69,7 @@ class CourseController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $course->update($validatedData);
+        $this->courseRepository->update($course, $validatedData);
         toastr()->success('Course updated successfully!');
 
         return redirect()->route('courses.index');
@@ -70,7 +78,7 @@ class CourseController extends Controller
 
     public function destroy(Course $course){
         try{
-            $course->delete();
+            $this->courseRepository->delete($course);
             // Display a success toast with no title
             toastr()->success('Data has been deleted successfully!');
         }catch(Exception $ex){

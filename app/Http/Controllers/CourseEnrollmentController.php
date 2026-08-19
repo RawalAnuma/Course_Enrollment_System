@@ -5,11 +5,12 @@ use App\Models\Course;
 use App\Models\User;
 use App\Models\CourseEnrollment;
 use Illuminate\Http\Request;
+use Exception;
 
 class CourseEnrollmentController extends Controller
 {
     public function index(){
-        $enrollments = CourseEnrollment::get();
+        $enrollments = CourseEnrollment::with(['student', 'course.leader'])->get();
         return view('enrollments.index', compact('enrollments'));
     }
 
@@ -35,16 +36,22 @@ class CourseEnrollmentController extends Controller
         return redirect()->route('enrollments.index');
     }
 
+    public function show(CourseEnrollment $enrollment)
+    {
+        $enrollment->load(['student', 'course.leader']);
 
-    public function edit($id){
-        $enrollment = CourseEnrollment::findOrFail($id);
+        return view('enrollments.show', compact('enrollment'));
+    }
+
+
+    public function edit(CourseEnrollment $enrollment){
         $courses = Course::all();
         $students = User::where('role', 'student')->get();
         return view('enrollments.edit', compact('enrollment', 'courses', 'students'));
     }
 
-    public function update(Request $request, $id){
-        $enrollment = CourseEnrollment::findOrFail($id);
+    public function update(Request $request, CourseEnrollment $enrollment){
+        
         $validatedData = $request->validate([
             'course_id' => 'required|exists:courses,id',
             'user_id' => 'required|exists:users,id',
@@ -58,9 +65,9 @@ class CourseEnrollmentController extends Controller
     }
 
 
-    public function delete($id){
+    public function destroy(CourseEnrollment $enrollment){
         try{
-            CourseEnrollment::where('id', $id)->delete();
+            $enrollment->delete();
             toastr()->success('Enrollment has been deleted successfully!');
         }catch(Exception $ex){
             toastr()->error('An error occurred while deleting the enrollment.');

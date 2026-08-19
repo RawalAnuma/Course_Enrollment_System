@@ -19,15 +19,12 @@ Route::middleware(['check'])->group(function () {
     //Course Routes
     Route::resource('courses', CourseController::class);
 
-
-
     //Enrollment Routes
-    Route::get('/enrollments', [CourseEnrollmentController::class, 'index'])->name('enrollments.index');
-    Route::get('/enrollments/create/{course}', [CourseEnrollmentController::class, 'create'])->name('enrollments.create');
-    Route::post('/enrollments', [CourseEnrollmentController::class, 'store'])->name('enrollments.store');
-    Route::get('/enrollments/edit/{id}', [CourseEnrollmentController::class, 'edit'])->name('enrollments.edit');
-    Route::put('/enrollments/update/{id}', [CourseEnrollmentController::class, 'update'])->name('enrollments.update');
-    Route::delete('/enrollments/delete/{id}', [CourseEnrollmentController::class, 'delete'])->name('enrollments.delete');
+    Route::resource('enrollments', CourseEnrollmentController::class)->except(['create'], 'show');
+
+    Route::get(
+    '/enrollments/create/{course}',
+    [CourseEnrollmentController::class, 'create'])->name('enrollments.create');
 
     Route::get('/logout', [LoginController::class, 'logout'])->name('auth.logout');
     

@@ -7,15 +7,33 @@ use App\Models\CourseEnrollment;
 use Illuminate\Http\Request;
 use Exception;
 
+use App\Repositories\Contracts\CourseRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
+use App\Repositories\Contracts\CourseEnrollmentRepositoryInterface;
+
 class CourseEnrollmentController extends Controller
 {
+    private CourseEnrollmentRepositoryInterface $enrollmentRepository;
+    private CourseRepositoryInterface $courseRepository;
+    private UserRepositoryInterface $userRepository;
+
+    public function __construct(
+        CourseEnrollmentRepositoryInterface $enrollmentRepository,
+        CourseRepositoryInterface $courseRepository,
+        UserRepositoryInterface $userRepository
+    ) {
+        $this->enrollmentRepository = $enrollmentRepository;
+        $this->courseRepository = $courseRepository;
+        $this->userRepository = $userRepository;
+    }
+
     public function index(){
-        $enrollments = CourseEnrollment::with(['student', 'course.leader'])->get();
+        $enrollments = $this->enrollmentRepository->getAll();
         return view('enrollments.index', compact('enrollments'));
     }
 
     public function create(Course $course){
-        $students = User::where('role', 'student')->get();
+        $students = $this->userRepository->getStudents();
         return view('enrollments.create', compact('course', 'students'));
     }
 
@@ -25,12 +43,12 @@ class CourseEnrollmentController extends Controller
             'course_id' => 'required|exists:courses,id',
             'user_id' => 'required|exists:users,id',
             'status' => 'required|boolean',
-            'completed_at' => 'nullable|date|after_or_equal:enrolled_at',
+            'completed_at' => 'nullable|date',
         ]);
 
         $validatedData['enrolled_at'] = now();
 
-        CourseEnrollment::create($validatedData);
+        $this->enrollmentRepository->create($validatedData);
 
         toastr()->success('Enrollment created successfully!');
         return redirect()->route('enrollments.index');
@@ -45,8 +63,9 @@ class CourseEnrollmentController extends Controller
 
 
     public function edit(CourseEnrollment $enrollment){
-        $courses = Course::all();
-        $students = User::where('role', 'student')->get();
+        $courses = $this->courseRepository->getAll();
+        $students = $this->userRepository->getStudents();
+
         return view('enrollments.edit', compact('enrollment', 'courses', 'students'));
     }
 
@@ -56,10 +75,11 @@ class CourseEnrollmentController extends Controller
             'course_id' => 'required|exists:courses,id',
             'user_id' => 'required|exists:users,id',
             'status' => 'required|boolean',
-            'completed_at' => 'nullable|date|after_or_equal:enrolled_at',
+            'completed_at' => 'nullable|date',
         ]);
 
-        $enrollment->update($validatedData);
+        $this->enrollmentRepository->update($enrollment,
+            $validatedData);
         toastr()->success('Enrollment updated successfully!');
         return redirect()->route('enrollments.index');
     }
@@ -67,7 +87,7 @@ class CourseEnrollmentController extends Controller
 
     public function destroy(CourseEnrollment $enrollment){
         try{
-            $enrollment->delete();
+            $this->enrollmentRepository->delete($enrollment);
             toastr()->success('Enrollment has been deleted successfully!');
         }catch(Exception $ex){
             toastr()->error('An error occurred while deleting the enrollment.');

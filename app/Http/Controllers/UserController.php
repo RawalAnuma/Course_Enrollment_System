@@ -4,12 +4,21 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Exception;
+use App\Repositories\Contracts\UserRepositoryInterface;
 
 class UserController extends Controller
 {
+    private UserRepositoryInterface $userRepository;
+
+    public function __construct(
+        UserRepositoryInterface $userRepository
+    ) {
+        $this->userRepository = $userRepository;
+    }
+
     public function index()
     {
-        $users = User::all(['id', 'name', 'email', 'contact_number', 'role', 'status']);
+        $users = $this->userRepository->getAll();
         return view('users.index', compact('users'));
     }
 
@@ -30,7 +39,7 @@ class UserController extends Controller
             'password' => 'required|min:8',
         ]);
 
-        User::create($validatedData);
+        $this->userRepository->create($validatedData);
         toastr()->success('User created successfully!');
         return redirect()->route('users.index');
         }catch(Exception $ex){
@@ -60,14 +69,14 @@ class UserController extends Controller
             'status' => 'required|boolean',
         ]);
 
-        $user->update($validatedData);
+         $this->userRepository->update($user,$validatedData);
         toastr()->success('User updated successfully!');
         return redirect()->route('users.index');
     }
 
     public function destroy(User $user){
         try{
-            $user->delete();
+            $this->userRepository->delete($user);
             // Display a success toast with no title
             toastr()->success('User has been deleted successfully!');
         }catch(Exception $ex){

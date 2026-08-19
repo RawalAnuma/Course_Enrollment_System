@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Exception;
 
 class UserController extends Controller
 {
@@ -44,24 +45,13 @@ class UserController extends Controller
 
     }
 
-    public function edit($id)
+    public function edit(User $user)
     {
-        $user = User::find($id);
-        if (!$user) {
-            toastr()->error('User not found.');
-            return redirect()->route('users.index');
-        }
         return view('users.edit', compact('user'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        $user = User::find($id);
-        if (!$user) {
-            toastr()->error('User not found.');
-            return redirect()->route('users.index');
-        }
-
         $validatedData = $request->validate([
             'name' => 'required|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
@@ -75,9 +65,9 @@ class UserController extends Controller
         return redirect()->route('users.index');
     }
 
-    public function delete($id){
+    public function destroy(User $user){
         try{
-            User::where('id', $id)->delete();
+            $user->delete();
             // Display a success toast with no title
             toastr()->success('User has been deleted successfully!');
         }catch(Exception $ex){

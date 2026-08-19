@@ -9,6 +9,7 @@ use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Mail\WelcomeEmail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 use Exception;
 use Illuminate\Http\Request;
 

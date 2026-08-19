@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-//use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Storage;
 
 class LoginController extends Controller
 {
@@ -52,35 +52,37 @@ class LoginController extends Controller
 
 
     public function updateProfile(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . Auth::id(),
-            'contact_number' => 'required|max:15',
-            //'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . Auth::id(),
+        'contact_number' => 'required|max:15',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+    ]);
 
-        $user = Auth::user();
+    $user = Auth::user();
 
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->contact_number = $request->contact_number;
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->contact_number = $request->contact_number;
 
-        // if ($request->hasFile('image')) {
+    if ($request->hasFile('image')) {
 
-        //     if ($user->image && Storage::disk('public')->exists($user->image)) {
-        //         Storage::disk('public')->delete($user->image);
-        //     }
+        // Delete old image
+        if ($user->image && Storage::disk('public')->exists($user->image)) {
+            Storage::disk('public')->delete($user->image);
+        }
 
-        //     $user->image = $request->file('image')->store('profiles', 'public');
-        // }
-
-        $user->save();
-
-        toastr()->success('Profile updated successfully.');
-
-        return redirect()->back();
+        // Store new image
+        $user->image = $request->file('image')->store('profiles', 'public');
     }
+
+    $user->save();
+
+    toastr()->success('Profile updated successfully.');
+
+    return redirect()->back();
+}
 
 
         public function changePassword(Request $request)

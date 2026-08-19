@@ -62,11 +62,11 @@
                                     <i class="bi bi-eye"></i>
                                 </button>
 
-                                <a href="{{ route('courses.edit', $course->id) }}" class="btn btn-sm btn-warning">
+                                <a href="{{ route('courses.edit', $course) }}" class="btn btn-sm btn-warning">
                                     <i class="bi bi-pencil"></i>
                                 </a>
 
-                                <form action="{{ route('courses.delete', $course->id) }}" method="POST" style="display:inline;">
+                                <form action="{{ route('courses.destroy', $course) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
 

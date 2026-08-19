@@ -17,12 +17,7 @@ Route::middleware(['check'])->group(function () {
     Route::resource('users', UserController::class);
 
     //Course Routes
-    Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
-    Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
-    Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
-    Route::get('/courses/edit/{id}', [CourseController::class, 'edit'])->name('courses.edit');
-    Route::put('/courses/update/{id}', [CourseController::class, 'update'])->name('courses.update');
-    Route::delete('/courses/delete/{id}', [CourseController::class, 'delete'])->name('courses.delete');
+    Route::resource('courses', CourseController::class);
 
 
 

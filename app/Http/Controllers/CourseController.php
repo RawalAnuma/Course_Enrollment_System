@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Models\Course;
 
 use Illuminate\Http\Request;
+use Exception;
 
 class CourseController extends Controller
 {
@@ -43,14 +44,12 @@ class CourseController extends Controller
     }
 
 
-    public function edit($id){
-        $course = Course::findOrFail($id);
+    public function edit(Course $course){
         $leaders = User::where('role', 'teacher')->get();
         return view('courses.edit', compact('course', 'leaders'));
     }
 
-    public function update(Request $request, $id){
-        $course = Course::findOrFail($id);
+    public function update(Request $request, Course $course){
         $validatedData = $request->validate([
             'course_name' => 'required|string|max:255',
             'course_id' => 'required|string|max:255|unique:courses,course_id,' . $course->id,
@@ -69,9 +68,9 @@ class CourseController extends Controller
     }
 
 
-    public function delete($id){
+    public function destroy(Course $course){
         try{
-            Course::where('id', $id)->delete();
+            $course->delete();
             // Display a success toast with no title
             toastr()->success('Data has been deleted successfully!');
         }catch(Exception $ex){
